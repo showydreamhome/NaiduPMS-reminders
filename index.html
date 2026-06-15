@@ -1,0 +1,2193 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Personal PMS Dashboard</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #071323;
+      --panel: #0d1f37;
+      --panel-2: #102845;
+      --panel-3: #153457;
+      --line: #244565;
+      --text: #eef6ff;
+      --muted: #91a9c9;
+      --soft: #6380a8;
+      --blue: #5a9cff;
+      --teal: #20c7b6;
+      --green: #36c887;
+      --amber: #f4ae3d;
+      --red: #f05b62;
+      --violet: #9b75df;
+      --shadow: 0 24px 70px rgba(0, 0, 0, .32);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      letter-spacing: 0;
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+      color: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      background: #08192e;
+      border-right: 1px solid #18314d;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 28px 24px 26px;
+      border-bottom: 1px solid #18314d;
+    }
+
+    .brand-mark, .avatar, .icon-box {
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+    }
+
+    .brand-mark {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      background: var(--blue);
+      box-shadow: 0 12px 30px rgba(90, 156, 255, .24);
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.1;
+    }
+
+    .brand p, .section-label {
+      margin: 4px 0 0;
+      color: var(--soft);
+      text-transform: uppercase;
+      font-weight: 800;
+      font-size: 12px;
+      letter-spacing: .12em;
+    }
+
+    .nav {
+      padding: 18px 16px;
+      display: grid;
+      gap: 22px;
+      overflow: auto;
+    }
+
+    .nav-group {
+      display: grid;
+      gap: 7px;
+    }
+
+    .section-label {
+      padding: 0 10px 4px;
+    }
+
+    .nav-button {
+      width: 100%;
+      min-height: 46px;
+      display: grid;
+      grid-template-columns: 26px 1fr auto;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: transparent;
+      color: #b3c2d7;
+      text-align: left;
+      font-weight: 750;
+    }
+
+    .nav-button.active, .nav-button:hover {
+      background: var(--blue);
+      color: white;
+    }
+
+    .badge {
+      min-width: 26px;
+      height: 24px;
+      padding: 0 8px;
+      border-radius: 999px;
+      display: inline-grid;
+      place-items: center;
+      background: var(--red);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .profile {
+      margin-top: auto;
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      border-top: 1px solid #18314d;
+    }
+
+    .avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 999px;
+      background: var(--blue);
+      font-weight: 850;
+    }
+
+    .profile strong, .profile span {
+      display: block;
+    }
+
+    .profile span {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 2px;
+    }
+
+    main {
+      min-width: 0;
+      background:
+        linear-gradient(180deg, rgba(28, 58, 97, .98) 0 230px, #142f50 230px 100%);
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      min-height: 86px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 18px 36px;
+      background: #081a31;
+      border-bottom: 1px solid #1e3a5c;
+    }
+
+    .topbar h2 {
+      margin: 0;
+      font-size: clamp(24px, 2.8vw, 36px);
+      line-height: 1;
+    }
+
+    .tools {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: min(620px, 52vw);
+      justify-content: flex-end;
+    }
+
+    .search {
+      position: relative;
+      flex: 1;
+      max-width: 430px;
+    }
+
+    .search input {
+      width: 100%;
+      min-height: 46px;
+      border: 1px solid #2a4e7c;
+      background: #102845;
+      border-radius: 8px;
+      padding: 0 16px 0 46px;
+      outline: none;
+    }
+
+    .search svg {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #6f92bf;
+    }
+
+    .icon-button {
+      width: 46px;
+      height: 46px;
+      border-radius: 8px;
+      background: #0d2341;
+      border: 1px solid #2a4e7c;
+      display: grid;
+      place-items: center;
+      position: relative;
+    }
+
+    .dot {
+      position: absolute;
+      right: 11px;
+      top: 9px;
+      width: 7px;
+      height: 7px;
+      border-radius: 99px;
+      background: var(--red);
+    }
+
+    .content {
+      max-width: 1480px;
+      margin: 0 auto;
+      padding: 34px 36px 44px;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(170px, 1fr));
+      gap: 20px;
+      margin-bottom: 26px;
+    }
+
+    .metric {
+      min-height: 165px;
+      text-align: left;
+      background: #0b203b;
+      border: 1px solid #2a4e7c;
+      border-radius: 8px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: var(--shadow);
+      transition: transform .16s ease, border-color .16s ease, background .16s ease;
+    }
+
+    .metric:hover, .metric:focus-visible {
+      transform: translateY(-2px);
+      border-color: #558ee3;
+      background: #102845;
+      outline: none;
+    }
+
+    .metric-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .icon-box {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      background: rgba(90, 156, 255, .15);
+    }
+
+    .metric .tag, .pill {
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: rgba(90, 156, 255, .15);
+      color: #7db0ff;
+      font-size: 13px;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 42px;
+      line-height: .95;
+      margin-bottom: 8px;
+    }
+
+    .metric span:last-child {
+      color: #a4b9d8;
+      font-weight: 750;
+      font-size: 16px;
+    }
+
+    .teal { color: var(--teal); }
+    .green { color: var(--green); }
+    .amber { color: var(--amber); }
+    .red { color: var(--red); }
+    .violet { color: var(--violet); }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.55fr) minmax(370px, .9fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .lower-grid {
+      margin-top: 24px;
+      display: grid;
+      grid-template-columns: minmax(280px, .8fr) minmax(360px, 1fr) minmax(320px, 1fr);
+      gap: 24px;
+    }
+
+    .lower-grid > .panel:first-child {
+      grid-column: span 2;
+    }
+
+    .panel {
+      background: #0b203b;
+      border: 1px solid #2a4e7c;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .panel-header {
+      min-height: 68px;
+      padding: 18px 24px;
+      border-bottom: 1px solid #244565;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 850;
+    }
+
+    .link-button {
+      background: transparent;
+      color: #76abff;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .task-list, .project-list, .people-list, .activity-list {
+      display: grid;
+    }
+
+    .project-row, .reminder-row, .person-row, .activity-row {
+      min-height: 86px;
+      padding: 18px 24px;
+      border-bottom: 1px solid #244565;
+    }
+
+    .project-row, .person-row, .mini-item {
+      width: 100%;
+      border-left: 0;
+      border-right: 0;
+      border-top: 0;
+      color: inherit;
+      background: transparent;
+      text-align: left;
+    }
+
+    .project-row:hover, .person-row:hover, .mini-item:hover {
+      background: rgba(90, 156, 255, .08);
+    }
+
+    .project-row {
+      display: grid;
+      grid-template-columns: 7px minmax(0, 1fr) 132px;
+      gap: 18px;
+      align-items: center;
+    }
+
+    .project-row:last-child, .reminder-row:last-child, .person-row:last-child, .activity-row:last-child { border-bottom: 0; }
+
+    .stripe {
+      width: 6px;
+      height: 64px;
+      border-radius: 99px;
+      background: var(--blue);
+    }
+
+    .row-title {
+      font-size: 18px;
+      font-weight: 850;
+      margin-bottom: 6px;
+      overflow-wrap: anywhere;
+    }
+
+    .row-meta {
+      color: #9eb8d8;
+      font-weight: 650;
+      font-size: 14px;
+    }
+
+    .progress-wrap {
+      display: grid;
+      gap: 8px;
+      justify-items: end;
+    }
+
+    .status {
+      font-size: 12px;
+      font-weight: 900;
+      border-radius: 7px;
+      padding: 6px 10px;
+      background: rgba(54, 200, 135, .16);
+      color: var(--green);
+    }
+
+    .bar {
+      width: 118px;
+      height: 7px;
+      border-radius: 999px;
+      background: #274a78;
+      overflow: hidden;
+    }
+
+    .bar i {
+      display: block;
+      height: 100%;
+      background: currentColor;
+      border-radius: inherit;
+    }
+
+    .tabs, .segmented {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tab, .segment {
+      min-height: 38px;
+      border-radius: 8px;
+      background: transparent;
+      color: #9eb8d8;
+      padding: 0 14px;
+      font-weight: 850;
+    }
+
+    .tab.active, .segment.active {
+      background: #1d4b91;
+      color: #dbeaff;
+    }
+
+    .reminder-row {
+      display: grid;
+      grid-template-columns: 32px minmax(0, 1fr) auto;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .reminder-row.overdue {
+      background: rgba(240, 91, 98, .13);
+      border-color: rgba(240, 91, 98, .45);
+      box-shadow: inset 4px 0 0 var(--red);
+    }
+
+    .reminder-row.overdue .row-title,
+    .reminder-row.overdue .row-meta,
+    .reminder-row.overdue .pill {
+      color: #ff9aa0;
+    }
+
+    .reminder-row.overdue .check {
+      border-color: var(--red);
+      background: rgba(240, 91, 98, .14);
+    }
+
+    .reminder-row.overdue .chip {
+      background: rgba(240, 91, 98, .2);
+      color: #ff9aa0;
+    }
+
+    .check {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid #345d91;
+      background: transparent;
+      margin-top: 2px;
+    }
+
+    .check.done {
+      background: var(--green);
+      border-color: var(--green);
+    }
+
+    .reminder-row.done .row-title {
+      color: #7790ae;
+      text-decoration: line-through;
+    }
+
+    .chips {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .chip {
+      border-radius: 6px;
+      padding: 4px 8px;
+      background: #17365b;
+      color: #7db0ff;
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .chip.red { background: rgba(240, 91, 98, .2); color: var(--red); }
+    .chip.amber { background: rgba(244, 174, 61, .17); color: var(--amber); }
+    .chip.green { background: rgba(54, 200, 135, .16); color: var(--green); }
+    .chip.violet { background: rgba(155, 117, 223, .16); color: #b898ff; }
+
+    .selectlike, .drawer input, .drawer select, .drawer textarea {
+      min-height: 44px;
+      border-radius: 8px;
+      border: 1px solid #2a4e7c;
+      background: #0d2341;
+      padding: 0 14px;
+      outline: none;
+    }
+
+    .primary, .secondary, .edit-button {
+      min-height: 44px;
+      border-radius: 8px;
+      font-weight: 900;
+    }
+
+    .primary { background: var(--blue); }
+
+    .secondary, .edit-button {
+      background: #102845;
+      border: 1px solid #2a4e7c;
+      color: #d7e8ff;
+    }
+
+    .edit-button {
+      min-height: 34px;
+      padding: 0 12px;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .calendar-body {
+      padding: 22px 24px 26px;
+    }
+
+    .calendar-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .calendar-head strong {
+      font-size: 20px;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+      text-align: center;
+    }
+
+    .weekday, .day {
+      min-height: 36px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      color: #8da6c8;
+      font-weight: 800;
+      position: relative;
+    }
+
+    .weekday {
+      min-height: 24px;
+      font-size: 12px;
+      color: #6f89ad;
+    }
+
+    .day.current {
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .day.in-range {
+      background: rgba(90, 156, 255, .14);
+      color: #dceaff;
+    }
+
+    .day.has-items::after {
+      content: "";
+      position: absolute;
+      bottom: 5px;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--amber);
+    }
+
+    .range-summary {
+      margin-top: 18px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .mini-item {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 12px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .035);
+      border: 1px solid rgba(255, 255, 255, .06);
+    }
+
+    .mini-item small {
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .person-row {
+      display: grid;
+      grid-template-columns: 48px minmax(0, 1fr) auto;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .person-row .avatar {
+      width: 46px;
+      height: 46px;
+    }
+
+    .activity-row {
+      display: grid;
+      grid-template-columns: 12px 1fr;
+      gap: 14px;
+    }
+
+    .activity-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--blue);
+      margin-top: 6px;
+    }
+
+    .empty {
+      padding: 30px 24px;
+      color: var(--muted);
+      font-weight: 750;
+    }
+
+    .drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      background: rgba(0, 0, 0, .45);
+      display: none;
+    }
+
+    .drawer-backdrop.open {
+      display: block;
+    }
+
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      z-index: 70;
+      width: min(560px, 100vw);
+      height: 100vh;
+      max-height: 100dvh;
+      background: #0a1d35;
+      border-left: 1px solid #2a4e7c;
+      box-shadow: -20px 0 70px rgba(0, 0, 0, .38);
+      transform: translateX(100%);
+      transition: transform .2s ease;
+      display: block;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .drawer.open {
+      transform: translateX(0);
+    }
+
+    .drawer-head {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      padding: 24px;
+      border-bottom: 1px solid #244565;
+      background: #0a1d35;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .drawer-head h3 {
+      margin: 0 0 7px;
+      font-size: 24px;
+    }
+
+    .drawer-head p {
+      margin: 0;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .close {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      background: #102845;
+      border: 1px solid #2a4e7c;
+    }
+
+    .drawer-body {
+      overflow: visible;
+      padding: 22px 24px;
+      display: grid;
+      align-content: start;
+      gap: 14px;
+    }
+
+    .detail-card {
+      border: 1px solid #2a4e7c;
+      border-radius: 8px;
+      background: #0d2341;
+      padding: 16px;
+    }
+
+    .detail-card header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .detail-card h4 {
+      margin: 0;
+      font-size: 17px;
+    }
+
+    .detail-card p {
+      margin: 8px 0 0;
+      color: #a9bdd8;
+      line-height: 1.5;
+    }
+
+    .link-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .action-link {
+      min-height: 34px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 10px;
+      border-radius: 8px;
+      border: 1px solid #2a4e7c;
+      background: #102845;
+      color: #d7e8ff;
+      font-size: 13px;
+      font-weight: 900;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .action-link.green {
+      border-color: rgba(54, 200, 135, .35);
+      background: rgba(54, 200, 135, .12);
+      color: #73e0ad;
+    }
+
+    .action-link.amber {
+      border-color: rgba(244, 174, 61, .35);
+      background: rgba(244, 174, 61, .12);
+      color: #ffc76d;
+    }
+
+    .drawer-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding: 18px 24px 28px;
+      border-top: 1px solid #244565;
+    }
+
+    .drawer-form.hidden {
+      display: none;
+    }
+
+    .drawer-form label {
+      display: grid;
+      gap: 7px;
+      color: #a8bdd9;
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    .drawer-form .wide {
+      grid-column: 1 / -1;
+    }
+
+    .drawer textarea {
+      min-height: 76px;
+      padding-top: 12px;
+      resize: vertical;
+    }
+
+    .drawer-form button {
+      width: 100%;
+    }
+
+    .drawer-actions {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .whatsapp-panel {
+      background: #0b203b;
+      border: 1px solid #2a4e7c;
+      border-radius: 8px;
+      padding: 18px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .whatsapp-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 12px;
+      background: rgba(54, 200, 135, .08);
+      border: 1px solid rgba(54, 200, 135, .16);
+      border-radius: 8px;
+    }
+
+    .planner-modal {
+      position: fixed;
+      inset: 24px;
+      z-index: 90;
+      background: #0a1d35;
+      border: 1px solid #2a4e7c;
+      border-radius: 8px;
+      box-shadow: 0 28px 90px rgba(0, 0, 0, .48);
+      display: none;
+      grid-template-rows: auto 1fr;
+      overflow: hidden;
+    }
+
+    .planner-modal.open {
+      display: grid;
+    }
+
+    .planner-head {
+      padding: 20px 24px;
+      border-bottom: 1px solid #244565;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .planner-head h3 {
+      margin: 0;
+      font-size: 26px;
+    }
+
+    .planner-head p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-weight: 750;
+    }
+
+    .planner-layout {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+    }
+
+    .day-schedule {
+      overflow: auto;
+      padding: 18px 24px 30px;
+    }
+
+    .hour-row {
+      min-height: 72px;
+      display: grid;
+      grid-template-columns: 76px minmax(0, 1fr);
+      border-bottom: 1px solid rgba(148, 171, 207, .18);
+    }
+
+    .hour-label {
+      color: #8fa8ca;
+      font-weight: 850;
+      padding-top: 12px;
+    }
+
+    .hour-content {
+      position: relative;
+      padding: 8px 0 8px 12px;
+      border-left: 1px solid rgba(148, 171, 207, .2);
+      display: grid;
+      gap: 8px;
+      align-content: start;
+    }
+
+    .calendar-event {
+      border-radius: 8px;
+      border: 1px solid rgba(90, 156, 255, .3);
+      background: rgba(90, 156, 255, .14);
+      padding: 9px 12px;
+      display: grid;
+      gap: 3px;
+    }
+
+    .calendar-event strong {
+      overflow-wrap: anywhere;
+    }
+
+    .planner-side {
+      min-height: 0;
+      overflow: auto;
+      border-left: 1px solid #244565;
+      background: #0d203a;
+      padding: 18px;
+      display: grid;
+      gap: 18px;
+      align-content: start;
+    }
+
+    .planner-form {
+      display: grid;
+      gap: 12px;
+    }
+
+    .planner-form label {
+      display: grid;
+      gap: 7px;
+      color: #a8bdd9;
+      font-weight: 850;
+      font-size: 13px;
+    }
+
+    .planner-form input, .planner-form select, .planner-form textarea {
+      min-height: 42px;
+      border-radius: 8px;
+      border: 1px solid #2a4e7c;
+      background: #0b1d35;
+      padding: 0 12px;
+      outline: none;
+    }
+
+    .planner-form textarea {
+      min-height: 74px;
+      padding-top: 10px;
+      resize: vertical;
+    }
+
+    .day-task-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    svg {
+      width: 21px;
+      height: 21px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    @media (max-width: 1180px) {
+      .app { grid-template-columns: 88px minmax(0, 1fr); }
+      .brand { justify-content: center; padding-inline: 14px; }
+      .brand div:last-child, .section-label, .nav-button span.label, .profile div:last-child { display: none; }
+      .nav-button { grid-template-columns: 1fr; justify-items: center; }
+      .badge { position: absolute; transform: translate(20px, -12px); }
+      .profile { justify-content: center; padding-inline: 14px; }
+      .metric-grid { grid-template-columns: repeat(2, minmax(180px, 1fr)); }
+      .layout, .lower-grid { grid-template-columns: 1fr; }
+      .lower-grid > .panel:first-child { grid-column: auto; }
+      .tools { min-width: 0; }
+      .planner-layout { grid-template-columns: 1fr; }
+      .planner-side { border-left: 0; border-top: 1px solid #244565; }
+    }
+
+    @media (max-width: 740px) {
+      .app { display: block; }
+      .sidebar {
+        position: static;
+        height: auto;
+        display: block;
+      }
+      .brand, .profile { display: none; }
+      .nav {
+        display: flex;
+        gap: 8px;
+        padding: 10px;
+        overflow-x: auto;
+      }
+      .nav-group {
+        display: contents;
+      }
+      .section-label {
+        display: none;
+      }
+      .nav-button {
+        min-width: 54px;
+        width: 54px;
+        height: 46px;
+      }
+      .topbar {
+        position: static;
+        display: grid;
+        padding: 18px;
+      }
+      .tools {
+        width: 100%;
+      }
+      .search {
+        max-width: none;
+      }
+      .content {
+        padding: 18px;
+      }
+      .metric-grid {
+        grid-template-columns: 1fr;
+      }
+      .project-row {
+        grid-template-columns: 6px minmax(0, 1fr);
+      }
+      .progress-wrap {
+        grid-column: 2;
+        justify-items: start;
+      }
+      .drawer-form {
+        grid-template-columns: 1fr;
+      }
+      .drawer-form .wide {
+        grid-column: auto;
+      }
+      .drawer-actions {
+        grid-template-columns: 1fr;
+      }
+      .planner-modal {
+        inset: 0;
+        border-radius: 0;
+      }
+      .hour-row {
+        grid-template-columns: 58px minmax(0, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" aria-label="Primary">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M4 4h7v7H4z"></path><path d="M13 4h7v5h-7z"></path><path d="M13 11h7v9h-7z"></path><path d="M4 13h7v7H4z"></path></svg>
+        </div>
+        <div>
+          <h1>LifePMS</h1>
+          <p>Personal Suite</p>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <div class="nav-group">
+          <div class="section-label">Main</div>
+          <button class="nav-button active" data-section="dashboard"><svg viewBox="0 0 24 24"><path d="M4 4h6v6H4z"></path><path d="M14 4h6v6h-6z"></path><path d="M4 14h6v6H4z"></path><path d="M14 14h6v6h-6z"></path></svg><span class="label">Dashboard</span></button>
+          <button class="nav-button" data-open="important"><svg viewBox="0 0 24 24"><path d="M12 9v4"></path><path d="M12 17h.01"></path><path d="M10.3 4.3 2.7 17.2A2 2 0 0 0 4.4 20h15.2a2 2 0 0 0 1.7-2.8L13.7 4.3a2 2 0 0 0-3.4 0z"></path></svg><span class="label">Very Important</span><span class="badge" data-count="important">0</span></button>
+          <button class="nav-button" data-open="follow-week"><svg viewBox="0 0 24 24"><path d="M8 2v4"></path><path d="M16 2v4"></path><path d="M3 10h18"></path><rect x="3" y="4" width="18" height="18" rx="2"></rect></svg><span class="label">Week Follow Up</span><span class="badge" data-count="follow-week">0</span></button>
+        </div>
+        <div class="nav-group">
+          <div class="section-label">Planning</div>
+          <button class="nav-button" data-open="gradual"><svg viewBox="0 0 24 24"><path d="M4 17h4"></path><path d="M4 12h10"></path><path d="M4 7h16"></path><path d="m14 17 3 3 3-3"></path><path d="M17 14v6"></path></svg><span class="label">Gradual Follow Up</span><span class="badge" data-count="gradual">0</span></button>
+          <button class="nav-button" data-open="payments"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M3 10h18"></path><path d="M7 15h4"></path></svg><span class="label">Payments</span><span class="badge" data-count="payments">0</span></button>
+          <button class="nav-button" data-open="meetings"><svg viewBox="0 0 24 24"><path d="M8 2v4"></path><path d="M16 2v4"></path><path d="M3 10h18"></path><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M8 14h8"></path><path d="M8 18h5"></path></svg><span class="label">Meetings</span><span class="badge" data-count="meetings">0</span></button>
+          <button class="nav-button" data-open="birthdays"><svg viewBox="0 0 24 24"><path d="M20 21v-8H4v8"></path><path d="M4 13s2-3 4 0 4 0 4 0 2-3 4 0 4 0 4 0"></path><path d="M2 21h20"></path><path d="M7 8h.01"></path><path d="M12 8h.01"></path><path d="M17 8h.01"></path><path d="M7 4v4"></path><path d="M12 4v4"></path><path d="M17 4v4"></path></svg><span class="label">Birthdays</span><span class="badge" data-count="birthdays">0</span></button>
+          <button class="nav-button" data-section="calendar"><svg viewBox="0 0 24 24"><path d="M8 2v4"></path><path d="M16 2v4"></path><path d="M3 10h18"></path><rect x="3" y="4" width="18" height="18" rx="2"></rect></svg><span class="label">Calendar</span></button>
+        </div>
+      </nav>
+
+      <div class="profile">
+        <div class="avatar">HP</div>
+        <div>
+          <strong>Hariprasad</strong>
+          <span>Personal Manager</span>
+        </div>
+      </div>
+    </aside>
+
+    <main>
+      <header class="topbar">
+        <h2 id="pageTitle">Dashboard</h2>
+        <div class="tools">
+          <label class="search" aria-label="Search">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>
+            <input id="searchInput" type="search" placeholder="Search tasks, payments, birthdays...">
+          </label>
+          <button class="icon-button" id="notifyButton" title="Notifications" aria-label="Notifications"><span class="dot"></span><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg></button>
+          <button class="icon-button" id="addButton" title="Add item" aria-label="Add item"><svg viewBox="0 0 24 24"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg></button>
+        </div>
+      </header>
+
+      <section class="content">
+        <div class="metric-grid" aria-label="Dashboard counts">
+          <button class="metric" data-open="important">
+            <div class="metric-top">
+              <span class="icon-box red"><svg viewBox="0 0 24 24"><path d="M12 9v4"></path><path d="M12 17h.01"></path><path d="M10.3 4.3 2.7 17.2A2 2 0 0 0 4.4 20h15.2a2 2 0 0 0 1.7-2.8L13.7 4.3a2 2 0 0 0-3.4 0z"></path></svg></span>
+              <span class="tag red">Action needed</span>
+            </div>
+            <span><strong class="red" data-count="important">0</strong><span>Very Important Tasks</span></span>
+          </button>
+          <button class="metric" data-open="follow-week">
+            <div class="metric-top">
+              <span class="icon-box violet"><svg viewBox="0 0 24 24"><path d="M8 2v4"></path><path d="M16 2v4"></path><path d="M3 10h18"></path><rect x="3" y="4" width="18" height="18" rx="2"></rect></svg></span>
+              <span class="tag green">Next 7 days</span>
+            </div>
+            <span><strong class="violet" data-count="follow-week">0</strong><span>Follow Up In A Week</span></span>
+          </button>
+          <button class="metric" data-open="gradual">
+            <div class="metric-top">
+              <span class="icon-box teal"><svg viewBox="0 0 24 24"><path d="M7 7h10"></path><path d="m14 4 3 3-3 3"></path><path d="M17 17H7"></path><path d="m10 14-3 3 3 3"></path></svg></span>
+              <span class="tag teal">By date</span>
+            </div>
+            <span><strong class="teal" data-count="gradual">0</strong><span>Gradual Follow Ups</span></span>
+          </button>
+          <button class="metric" data-open="payments">
+            <div class="metric-top">
+              <span class="icon-box amber"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M3 10h18"></path><path d="M7 15h4"></path></svg></span>
+              <span class="tag amber">Due soon</span>
+            </div>
+            <span><strong class="amber" data-count="payments">0</strong><span>EMIs & Payments Due</span></span>
+          </button>
+          <button class="metric" data-open="meetings">
+            <div class="metric-top">
+              <span class="icon-box green"><svg viewBox="0 0 24 24"><path d="M8 2v4"></path><path d="M16 2v4"></path><path d="M3 10h18"></path><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M8 14h8"></path><path d="M8 18h5"></path></svg></span>
+              <span class="tag green">Scheduled</span>
+            </div>
+            <span><strong class="green" data-count="meetings">0</strong><span>Meetings</span></span>
+          </button>
+        </div>
+
+        <div class="layout">
+          <section class="panel" id="calendarPanel">
+            <div class="panel-header">
+              <div class="panel-title"><svg class="violet" viewBox="0 0 24 24"><path d="M8 2v4"></path><path d="M16 2v4"></path><path d="M3 10h18"></path><rect x="3" y="4" width="18" height="18" rx="2"></rect></svg> Calendar</div>
+              <div class="segmented" aria-label="Calendar range">
+                <button class="segment active" data-range="30">1 month</button>
+                <button class="segment" data-range="7">1 week</button>
+                <button class="segment" data-range="2">2 days</button>
+                <button class="segment" data-range="1">1 day</button>
+              </div>
+            </div>
+            <div class="calendar-body">
+              <div class="calendar-head">
+                <strong>May 2026</strong>
+                <span class="pill" id="rangeLabel">Next 30 days</span>
+              </div>
+              <div class="calendar-grid" id="calendarGrid"></div>
+              <div class="range-summary" id="rangeSummary"></div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div class="panel-title"><svg class="amber" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg> Reminders</div>
+              <button class="link-button" data-open="all-reminders">Manage -></button>
+            </div>
+            <div class="tabs" style="padding:16px 20px;border-bottom:1px solid #244565">
+              <button class="tab active" data-reminder-tab="today">Today</button>
+              <button class="tab" data-reminder-tab="upcoming">Upcoming</button>
+              <button class="tab" data-reminder-tab="payments">Payments</button>
+              <button class="tab" data-reminder-tab="meeting">Meetings</button>
+              <button class="tab" data-reminder-tab="birthday">Birthdays</button>
+              <button class="tab" data-reminder-tab="done">Done</button>
+            </div>
+            <div class="task-list" id="reminderList"></div>
+          </section>
+        </div>
+
+        <div class="lower-grid">
+          <section class="panel">
+            <div class="panel-header">
+              <div class="panel-title"><svg class="blue" viewBox="0 0 24 24"><path d="M4 5h6l2 3h8v11H4z"></path></svg> Important Work</div>
+              <button class="link-button" data-open="important">View all -></button>
+            </div>
+            <div class="project-list" id="importantList"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div class="panel-title"><svg class="green" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> Family & Contacts</div>
+              <button class="link-button" data-open="birthdays">All -></button>
+            </div>
+            <div class="people-list" id="peopleList"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div class="panel-title"><svg class="red" viewBox="0 0 24 24"><path d="M4 12h4l2-7 4 14 2-7h4"></path></svg> Recent Activity</div>
+            </div>
+            <div class="activity-list" id="activityList"></div>
+          </section>
+
+          <section class="whatsapp-panel">
+            <div class="panel-title"><svg class="green" viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 20.5l1.7-5.4A8.5 8.5 0 1 1 21 11.5z"></path><path d="M9 9c.4 2.4 2.1 4.1 4.5 4.8l1.1-1.1 2.2.6c.2.1.3.3.2.5-.4 1.1-1.2 1.8-2.3 1.8-3.6-.1-7.2-3.5-7.4-7.1 0-1.1.7-1.9 1.7-2.3.2-.1.5 0 .5.2l.6 2.2L9 9z"></path></svg> WhatsApp Reminder Channel</div>
+            <div class="whatsapp-row">
+              <span class="chip green">Ready</span>
+              <strong>Due alerts can be sent through WhatsApp Business API or Twilio.</strong>
+              <span class="pill">Backend needed</span>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="drawer-backdrop" id="drawerBackdrop"></div>
+  <aside class="drawer" id="drawer" aria-label="Details panel" aria-hidden="true">
+    <div class="drawer-head">
+      <div>
+        <h3 id="drawerTitle">Details</h3>
+        <p id="drawerSubtitle">Click a dashboard number to inspect the items behind it.</p>
+      </div>
+      <button class="close" id="closeDrawer" aria-label="Close">x</button>
+    </div>
+    <div class="drawer-body" id="drawerBody"></div>
+    <form class="drawer-form hidden" id="itemForm">
+      <input type="hidden" id="formId">
+      <label>Type
+        <select id="formType">
+          <option value="follow">Follow Up</option>
+          <option value="task">Task</option>
+          <option value="payment">Payment</option>
+          <option value="meeting">Meeting</option>
+          <option value="birthday">Birthday</option>
+        </select>
+      </label>
+      <label>Date
+        <input id="formDate" type="date" value="2026-05-30">
+      </label>
+      <label class="wide">Title
+        <input id="formTitle" required placeholder="Example: Pay car insurance">
+      </label>
+      <label>Priority
+        <select id="formPriority">
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+      </label>
+      <label>Repeat
+        <select id="formRepeat">
+          <option value="none">No repeat</option>
+          <option value="weekly">Weekly</option>
+          <option value="monthly">Monthly</option>
+          <option value="yearly">Yearly</option>
+        </select>
+      </label>
+      <label>Start Time
+        <input id="formTime" type="time" value="09:00">
+      </label>
+      <label>Quick Time
+        <select id="formTimeSelect" aria-label="Scroll and select start time"></select>
+      </label>
+      <label>Duration
+        <select id="formDuration">
+          <option value="30">30 minutes</option>
+          <option value="60" selected>1 hour</option>
+          <option value="90">1 hour 30 minutes</option>
+          <option value="120">2 hours</option>
+          <option value="180">3 hours</option>
+        </select>
+      </label>
+      <label>Contact Number
+        <input id="formPhone" inputmode="tel" placeholder="Example: 9860394160">
+      </label>
+      <label>Place
+        <input id="formPlace" placeholder="Example: Client office">
+      </label>
+      <label class="wide">Meeting Link
+        <input id="formMeetingLink" inputmode="url" placeholder="https://...">
+      </label>
+      <label class="wide">Google Meet Link
+        <input id="formGoogleMeet" inputmode="url" placeholder="https://meet.google.com/...">
+      </label>
+      <label class="wide">Location Link
+        <input id="formLocationLink" inputmode="url" placeholder="Google Maps link or address URL">
+      </label>
+      <label class="wide">Notes
+        <textarea id="formNotes" placeholder="Add amount, phone number, next action, or document details"></textarea>
+      </label>
+      <div class="drawer-actions">
+        <button class="secondary" type="button" id="cancelForm">Cancel</button>
+        <button class="primary" type="submit" id="formSubmit">Save</button>
+      </div>
+    </form>
+  </aside>
+
+  <section class="planner-modal" id="plannerModal" aria-label="Day planner" aria-hidden="true">
+    <header class="planner-head">
+      <div>
+        <h3 id="plannerTitle">Day Planner</h3>
+        <p id="plannerSubtitle">Plan meetings, calls, tasks, and reminders by hour.</p>
+      </div>
+      <button class="close" id="closePlanner" aria-label="Close day planner">x</button>
+    </header>
+    <div class="planner-layout">
+      <div class="day-schedule" id="daySchedule"></div>
+      <aside class="planner-side">
+        <div class="detail-card">
+          <header>
+            <h4>Add To This Day</h4>
+            <span class="chip green">Planner</span>
+          </header>
+          <p>Choose the hour, duration, and type. The item will also appear in dashboard tasks and the calendar day list.</p>
+        </div>
+        <form class="planner-form" id="plannerForm">
+          <input type="hidden" id="plannerDate">
+          <label>Type
+            <select id="plannerType">
+              <option value="meeting">Meeting</option>
+              <option value="task">Task</option>
+              <option value="follow">Follow Up</option>
+              <option value="payment">Payment</option>
+              <option value="birthday">Birthday</option>
+            </select>
+          </label>
+          <label>Title
+            <input id="plannerItemTitle" required placeholder="Example: Client meeting">
+          </label>
+          <label>Start Time
+            <input id="plannerTime" type="time" value="09:00">
+          </label>
+          <label>Quick Time
+            <select id="plannerTimeSelect" aria-label="Scroll and select start time"></select>
+          </label>
+          <label>Duration
+            <select id="plannerDuration">
+              <option value="30">30 minutes</option>
+              <option value="60" selected>1 hour</option>
+              <option value="90">1 hour 30 minutes</option>
+              <option value="120">2 hours</option>
+              <option value="180">3 hours</option>
+            </select>
+          </label>
+          <label>Priority
+            <select id="plannerPriority">
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="low">Low</option>
+            </select>
+          </label>
+          <label>Contact Number
+            <input id="plannerPhone" inputmode="tel" placeholder="Example: 9860394160">
+          </label>
+          <label>Place
+            <input id="plannerPlace" placeholder="Example: Client office">
+          </label>
+          <label>Meeting Link
+            <input id="plannerMeetingLink" inputmode="url" placeholder="https://...">
+          </label>
+          <label>Google Meet Link
+            <input id="plannerGoogleMeet" inputmode="url" placeholder="https://meet.google.com/...">
+          </label>
+          <label>Location Link
+            <input id="plannerLocationLink" inputmode="url" placeholder="Google Maps link or address URL">
+          </label>
+          <label>Notes
+            <textarea id="plannerNotes" placeholder="Add location, phone number, agenda, or payment details"></textarea>
+          </label>
+          <button class="primary" type="submit">Save To Day</button>
+        </form>
+        <div>
+          <div class="panel-title" style="margin-bottom:12px">Day Tasks</div>
+          <div class="day-task-list" id="dayTaskList"></div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbxRrj1FBiO69Ol4xNA6LfAaz1cuW6wBmP_QnpMJW7KZx9uWMA_wUdgP3_yzkF0JkoHjGQ/exec";
+
+     const today = new Date();
+     const storageKey = "lifePmsItems.v1";
+     let apiOnline = false;
+
+    const seedItems = [
+      { id: 1, type: "follow", title: "Call bank manager about home loan top-up", owner: "Self", date: "2026-05-30", time: "09:00", priority: "high", status: "open", notes: "Ask for rate revision, foreclosure charges, and documents required.", progress: 72 },
+      { id: 2, type: "task", title: "Submit insurance renewal documents", owner: "Self", date: "2026-05-31", time: "11:30", priority: "high", status: "open", notes: "Health insurance renewal. Check nominee and address details before submission.", progress: 38 },
+      { id: 3, type: "follow", title: "Follow up with tenant on rent agreement", owner: "Ravi", date: "2026-06-02", time: "14:00", priority: "medium", status: "open", notes: "Send stamped copy and ask for signature confirmation.", progress: 55 },
+      { id: 4, type: "payment", title: "Home Loan EMI", owner: "Bank", date: "2026-06-05", time: "10:00", amount: "Rs 42,500", priority: "high", status: "open", repeat: "monthly", notes: "Auto debit. Keep balance ready two days before due date.", progress: 20 },
+      { id: 5, type: "payment", title: "Car Insurance Premium", owner: "Insurer", date: "2026-06-10", time: "16:00", amount: "Rs 18,900", priority: "medium", status: "open", repeat: "yearly", notes: "Compare renewal quote before payment.", progress: 88 },
+      { id: 6, type: "birthday", title: "Ananya birthday", owner: "Family", date: "2026-06-12", time: "08:00", duration: 30, priority: "medium", status: "open", repeat: "yearly", notes: "Order cake and call in the morning." },
+      { id: 7, type: "follow", title: "Gradual follow up: property tax receipt", owner: "Corporation office", date: "2026-06-07", time: "12:00", priority: "low", status: "open", notes: "First check portal, then call helpline if receipt is not generated.", progress: 60 },
+      { id: 8, type: "payment", title: "SIP monthly investment", owner: "Mutual fund", date: "2026-06-15", time: "09:00", amount: "Rs 25,000", priority: "medium", status: "open", repeat: "monthly", notes: "Review allocation after payment.", progress: 45 },
+      { id: 9, type: "task", title: "Collect school fee receipt", owner: "School", date: "2026-06-20", time: "15:30", priority: "low", status: "open", notes: "Download receipt from parent portal.", progress: 25 },
+      { id: 10, type: "follow", title: "Second follow up: Aadhaar address update", owner: "Self", date: "2026-06-01", time: "10:30", priority: "high", status: "done", notes: "Completed after document upload." },
+      { id: 11, type: "meeting", title: "Weekly planning meeting", owner: "Self", date: "2026-05-30", time: "17:30", duration: 60, priority: "medium", status: "open", repeat: "weekly", phone: "9860394160", place: "Office conference room", meetingLink: "https://meet.google.com/new", googleMeet: "https://meet.google.com/new", locationLink: "https://maps.google.com", notes: "Review dues, meetings, and follow ups for next week." }
+    ];
+
+    let items = loadItems();
+    let activeReminderTab = "today";
+    let activeRange = 30;
+    let lastDrawerKey = "all-reminders";
+    let lastDrawerItemId = null;
+
+    const $ = (selector, root = document) => root.querySelector(selector);
+    const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+
+    function loadItems() {
+  try {
+    return JSON.parse(localStorage.getItem(storageKey)) || seedItems;
+  } catch {
+    return seedItems;
+  }
+}
+
+function saveItems() {
+  localStorage.setItem(storageKey, JSON.stringify(items));
+}
+
+function normalizeSheetItem(item) {
+  return {
+    ...item,
+    id: item.id || String(Date.now()),
+    duration: item.duration ? Number(item.duration) : 60,
+    status: item.status || "open",
+    repeat: item.repeat || "none",
+    priority: item.priority || "medium"
+  };
+}
+
+async function syncFromSheet() {
+  try {
+    const response = await fetch(`${API_URL}?action=list&ts=${Date.now()}`);
+    const data = await response.json();
+    const sheetItems = Array.isArray(data) ? data : data.items || data.data || [];
+
+    if (sheetItems.length) {
+      items = sheetItems.map(normalizeSheetItem);
+      saveItems();
+      render();
+    }
+
+    apiOnline = true;
+  } catch (error) {
+    apiOnline = false;
+    console.warn("Google Sheet load failed. Using local backup.", error);
+  }
+}
+
+async function saveToSheet(action, item) {
+  try {
+    await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({ action, item })
+    });
+
+    apiOnline = true;
+  } catch (error) {
+    apiOnline = false;
+    console.warn("Google Sheet save failed. Saved locally only.", error);
+  }
+}
+
+    function parseDate(value) {
+      return new Date(value + "T00:00:00");
+    }
+
+    function daysFromToday(value) {
+      const diff = parseDate(value) - new Date(today.toDateString());
+      return Math.round(diff / 86400000);
+    }
+
+    function formatDate(value) {
+      return parseDate(value).toLocaleDateString("en-IN", { month: "short", day: "numeric" });
+    }
+
+    function formatTime(value) {
+      const [hour, minute] = (value || "09:00").split(":").map(Number);
+      return new Date(2026, 4, 30, hour, minute || 0).toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" });
+    }
+
+    function itemDateTime(item) {
+      return new Date(`${item.date}T${item.time || "23:59"}`);
+    }
+
+    function isOverdue(item) {
+      return item.status !== "done" && itemDateTime(item) < new Date();
+    }
+
+    function normalizeUrl(value) {
+      const text = (value || "").trim();
+      if (!text) return "";
+      return /^https?:\/\//i.test(text) ? text : `https://${text}`;
+    }
+
+    function digitsOnly(value) {
+      return (value || "").replace(/\D/g, "");
+    }
+
+    function phoneFor(item) {
+      if (item.phone) return digitsOnly(item.phone);
+      const found = (item.notes || "").match(/\+?\d[\d\s-]{7,}\d/);
+      return found ? digitsOnly(found[0]) : "";
+    }
+
+    function noteLinks(item) {
+      return (item.notes || "").match(/https?:\/\/[^\s,]+/gi) || [];
+    }
+
+    function itemActions(item) {
+      const phone = phoneFor(item);
+      const actions = [];
+      if (phone) {
+        actions.push(`<a class="action-link green" href="https://wa.me/${phone}" target="_blank" rel="noopener">WhatsApp ${phone}</a>`);
+        actions.push(`<a class="action-link" href="tel:${phone}">Call ${phone}</a>`);
+      }
+      if (item.place) actions.push(`<span class="action-link amber">Place: ${item.place}</span>`);
+      if (item.meetingLink) actions.push(`<a class="action-link" href="${normalizeUrl(item.meetingLink)}" target="_blank" rel="noopener">Meeting Link</a>`);
+      if (item.googleMeet) actions.push(`<a class="action-link green" href="${normalizeUrl(item.googleMeet)}" target="_blank" rel="noopener">Google Meet</a>`);
+      if (item.locationLink) actions.push(`<a class="action-link amber" href="${normalizeUrl(item.locationLink)}" target="_blank" rel="noopener">Location</a>`);
+      noteLinks(item).forEach((link, index) => {
+        actions.push(`<a class="action-link" href="${normalizeUrl(link)}" target="_blank" rel="noopener">Note Link ${index + 1}</a>`);
+      });
+      return actions.length ? `<div class="link-actions">${actions.join("")}</div>` : "";
+    }
+
+    function itemDetailLines(item) {
+      const lines = [];
+      const phone = phoneFor(item);
+      if (phone) lines.push(`Phone: ${phone}`);
+      if (item.place) lines.push(`Place: ${item.place}`);
+      if (item.meetingLink) lines.push(`Meeting: ${item.meetingLink}`);
+      if (item.googleMeet) lines.push(`Google Meet: ${item.googleMeet}`);
+      if (item.locationLink) lines.push(`Location: ${item.locationLink}`);
+      if (item.notes) lines.push(`Notes: ${item.notes}`);
+      return lines.length ? `<div class="row-meta" style="grid-column:1 / -1;display:grid;gap:4px;margin-top:6px">${lines.map(line => `<span>${line}</span>`).join("")}</div>` : "";
+    }
+
+    function fillTimeSelect(select, current = "09:00") {
+      select.innerHTML = Array.from({ length: 96 }, (_, index) => {
+        const hour = String(Math.floor(index / 4)).padStart(2, "0");
+        const minute = String((index % 4) * 15).padStart(2, "0");
+        const value = `${hour}:${minute}`;
+        return `<option value="${value}" ${value === current ? "selected" : ""}>${formatTime(value)}</option>`;
+      }).join("");
+    }
+
+    function syncTimeControls(inputSelector, selectSelector) {
+      const input = $(inputSelector);
+      const select = $(selectSelector);
+      fillTimeSelect(select, input.value || "09:00");
+      input.addEventListener("input", () => {
+        const exists = Array.from(select.options).some(option => option.value === input.value);
+        if (exists) select.value = input.value;
+      });
+      select.addEventListener("change", () => {
+        input.value = select.value;
+      });
+    }
+
+    function dueText(item) {
+      const diff = daysFromToday(item.date);
+      if (diff === 0) return "Today";
+      if (diff === 1) return "Tomorrow";
+      if (diff < 0) return Math.abs(diff) + " days overdue";
+      return "In " + diff + " days";
+    }
+
+    function visibleItems() {
+      const q = $("#searchInput").value.trim().toLowerCase();
+      if (!q) return items;
+      return items.filter(item => [item.title, item.owner, item.notes, item.type, item.amount, item.phone, item.place, item.meetingLink, item.googleMeet, item.locationLink].filter(Boolean).join(" ").toLowerCase().includes(q));
+    }
+
+    function groups() {
+      const source = visibleItems();
+      return {
+        important: source.filter(item => item.status !== "done" && item.priority === "high"),
+        "follow-week": source.filter(item => item.status !== "done" && item.type === "follow" && daysFromToday(item.date) >= 0 && daysFromToday(item.date) <= 7),
+        gradual: source.filter(item => item.status !== "done" && item.type === "follow").sort((a, b) => parseDate(a.date) - parseDate(b.date)),
+        payments: source.filter(item => item.status !== "done" && item.type === "payment" && daysFromToday(item.date) <= 30),
+        meetings: source.filter(item => item.status !== "done" && item.type === "meeting"),
+        birthdays: source.filter(item => item.status !== "done" && item.type === "birthday"),
+        "all-reminders": source
+      };
+    }
+
+    function setCounts() {
+      const grouped = groups();
+      Object.entries(grouped).forEach(([key, values]) => {
+        $$(`[data-count="${key}"]`).forEach(el => { el.textContent = values.length; });
+      });
+    }
+
+    function iconFor(type) {
+      const icons = { follow: "->", payment: "Rs", birthday: "BD", task: "!", meeting: "MT" };
+      return icons[type] || "!";
+    }
+
+    function renderImportant() {
+      const list = $("#importantList");
+      const important = groups().important.slice(0, 6);
+      if (!important.length) {
+        list.innerHTML = '<div class="empty">No important tasks match the current search.</div>';
+        return;
+      }
+      list.innerHTML = important.map((item, index) => {
+        const color = ["var(--red)", "var(--amber)", "var(--green)", "var(--violet)", "var(--blue)", "var(--teal)"][index % 6];
+        const status = daysFromToday(item.date) < 0 ? "OVERDUE" : item.priority === "high" ? "HIGH" : "ON TRACK";
+        return `
+          <button class="project-row" data-detail="${item.id}">
+            <span class="stripe" style="background:${color}"></span>
+            <span>
+              <span class="row-title">${item.title}</span>
+              <span class="row-meta">${dueText(item)} · ${formatDate(item.date)} · ${item.owner}</span>
+            </span>
+            <span class="progress-wrap" style="color:${color}">
+              <span class="status" style="color:${color};background:color-mix(in srgb, ${color} 20%, transparent)">${status}</span>
+              <span class="bar"><i style="width:${item.progress || 50}%"></i></span>
+              <span class="row-meta">${item.progress || 50}%</span>
+            </span>
+          </button>
+        `;
+      }).join("");
+    }
+
+    function reminderFilter(item) {
+      const diff = daysFromToday(item.date);
+      if (activeReminderTab === "today") return item.status !== "done" && diff === 0;
+      if (activeReminderTab === "upcoming") return item.status !== "done" && diff > 0 && diff <= 30;
+      if (activeReminderTab === "payments") return item.status !== "done" && item.type === "payment";
+      if (activeReminderTab === "meeting") return item.status !== "done" && item.type === "meeting";
+      if (activeReminderTab === "birthday") return item.status !== "done" && item.type === "birthday";
+      if (activeReminderTab === "done") return item.status === "done";
+      return true;
+    }
+
+    function renderReminders() {
+      const list = $("#reminderList");
+      const filtered = visibleItems().filter(reminderFilter).sort((a, b) => parseDate(a.date) - parseDate(b.date));
+      if (!filtered.length) {
+        list.innerHTML = '<div class="empty">Nothing in this reminder view.</div>';
+        return;
+      }
+      list.innerHTML = filtered.map(item => {
+        const overdue = isOverdue(item);
+        return `
+        <div class="reminder-row ${item.status === "done" ? "done" : ""} ${overdue ? "overdue" : ""}">
+          <button class="check ${item.status === "done" ? "done" : ""}" data-toggle="${item.id}" aria-label="Mark ${item.title} done">${item.status === "done" ? "✓" : ""}</button>
+          <button style="background:transparent;text-align:left;padding:0" data-detail="${item.id}">
+            <span class="row-title">${iconFor(item.type)} ${item.title}</span>
+            <span class="row-meta">${formatTime(item.time)} · ${formatDate(item.date)} · ${dueText(item)}</span>
+            <span class="chips">
+              <span class="chip">${item.type}</span>
+              ${overdue ? '<span class="chip red">overdue</span>' : ""}
+              <span class="chip ${item.priority === "high" ? "red" : item.priority === "medium" ? "amber" : "green"}">${item.priority}</span>
+              ${item.amount ? `<span class="chip amber">${item.amount}</span>` : ""}
+              ${item.repeat && item.repeat !== "none" ? `<span class="chip violet">${item.repeat}</span>` : ""}
+            </span>
+          </button>
+          <span class="pill">${overdue ? "Overdue" : dueText(item)}</span>
+        </div>
+      `;
+      }).join("");
+    }
+
+    function renderPeople() {
+      const contacts = [
+        { initials: "AM", name: "Amma", role: "Family", pending: 2, color: "var(--green)" },
+        { initials: "RA", name: "Ravi Kumar", role: "Insurance agent", pending: 1, color: "var(--violet)" },
+        { initials: "BK", name: "Bank Manager", role: "Loan contact", pending: 3, color: "var(--amber)" },
+        { initials: "AN", name: "Ananya", role: "Birthday on Jun 12", pending: 1, color: "var(--red)" }
+      ];
+      $("#peopleList").innerHTML = contacts.map(person => `
+        <button class="person-row" data-open="birthdays">
+          <span class="avatar" style="background:${person.color}">${person.initials}</span>
+          <span><span class="row-title">${person.name}</span><span class="row-meta">${person.role}</span></span>
+          <strong class="blue">${person.pending}</strong>
+        </button>
+      `).join("");
+    }
+
+    function renderCalendar() {
+      const grid = $("#calendarGrid");
+      const monthStart = new Date("2026-05-01T00:00:00");
+      const firstDay = monthStart.getDay();
+      const totalDays = 31;
+      const nextStart = new Date("2026-06-01T00:00:00");
+      const rangeEnd = new Date(today);
+      rangeEnd.setDate(today.getDate() + activeRange - 1);
+      const calendarItems = visibleItems().filter(item => item.status !== "done");
+      const weekdays = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map(day => `<div class="weekday">${day}</div>`).join("");
+      const blanks = Array.from({ length: firstDay }, (_, i) => `<div class="day">${26 + i}</div>`).join("");
+      const days = Array.from({ length: totalDays }, (_, i) => {
+        const day = i + 1;
+        const date = new Date(2026, 4, day);
+        const iso = date.toISOString().slice(0, 10);
+        const inRange = date >= new Date(today.toDateString()) && date <= rangeEnd;
+        const dayItems = calendarItems.filter(item => item.date === iso);
+        const label = dayItems.length ? `${day}, ${dayItems.length} item${dayItems.length === 1 ? "" : "s"}: ${dayItems.map(item => `${formatTime(item.time)} ${item.title}`).join(", ")}` : String(day);
+        return `<button class="day ${day === 30 ? "current" : ""} ${inRange ? "in-range" : ""} ${dayItems.length ? "has-items" : ""}" data-date="${iso}" aria-label="${label}">${day}</button>`;
+      }).join("");
+      const tail = Array.from({ length: 6 }, (_, i) => `<div class="day">${i + 1}</div>`).join("");
+      grid.innerHTML = weekdays + blanks + days + tail;
+      $("#rangeLabel").textContent = activeRange === 1 ? "Next 1 day" : activeRange === 2 ? "Next 2 days" : activeRange === 7 ? "Next 1 week" : "Next 1 month";
+      renderRangeSummary();
+    }
+
+    function renderRangeSummary() {
+      const rangeEnd = new Date(today);
+      rangeEnd.setDate(today.getDate() + activeRange - 1);
+      const rangeItems = visibleItems()
+        .filter(item => item.status !== "done" && parseDate(item.date) >= new Date(today.toDateString()) && parseDate(item.date) <= rangeEnd)
+        .sort((a, b) => `${a.date} ${a.time || "09:00"}`.localeCompare(`${b.date} ${b.time || "09:00"}`));
+      $("#rangeSummary").innerHTML = rangeItems.length ? rangeItems.slice(0, 8).map(item => `
+        <button class="mini-item" data-detail="${item.id}">
+          <span class="chip ${item.priority === "high" ? "red" : item.priority === "medium" ? "amber" : "green"}">${item.type}</span>
+          <strong>${item.title}</strong>
+          <small>${formatDate(item.date)} · ${formatTime(item.time)}</small>
+        </button>
+      `).join("") : '<div class="empty" style="padding:16px">No tasks in this calendar range.</div>';
+    }
+
+    function renderActivity() {
+      const activity = [
+        { color: "var(--blue)", text: "Important follow up added for bank manager", time: "Today" },
+        { color: "var(--green)", text: "Aadhaar address follow up marked complete", time: "Yesterday" },
+        { color: "var(--red)", text: "Insurance renewal moved to high priority", time: "2 days ago" },
+        { color: "var(--violet)", text: "Birthday reminder created for Ananya", time: "3 days ago" },
+        { color: "var(--amber)", text: "EMI reminder set for Home Loan", time: "This week" }
+      ];
+      $("#activityList").innerHTML = activity.map(item => `
+        <div class="activity-row">
+          <span class="activity-dot" style="background:${item.color}"></span>
+          <span><span class="row-title">${item.text}</span><span class="row-meta">${item.time}</span></span>
+        </div>
+      `).join("");
+    }
+
+    function titleForGroup(key) {
+      return {
+        important: ["Very Important Tasks", "High priority tasks needing action."],
+        "follow-week": ["Follow Up In A Week", "Follow ups due from today through the next 7 days."],
+        gradual: ["Gradual Follow Ups", "Follow ups ordered by date, so they can be handled step by step."],
+        payments: ["Payments & EMIs", "Monthly EMIs, insurance, premiums, subscriptions, and other payment reminders."],
+        meetings: ["Meetings", "Scheduled meetings, calls, appointments, and day-planner blocks."],
+        birthdays: ["Birthdays", "Birthday reminders with yearly repeat."],
+        "all-reminders": ["All Reminders", "Every task, payment, birthday, and follow up in the PMS."],
+        notifications: ["Notifications", "Items needing your attention today and soon."]
+      }[key] || ["Details", "Items in this section."];
+    }
+
+    function hideItemForm() {
+      $("#itemForm").classList.add("hidden");
+      $("#formId").value = "";
+    }
+
+    function resetItemForm() {
+      $("#itemForm").reset();
+      $("#formId").value = "";
+      $("#formDate").value = today.toISOString().slice(0, 10);
+      $("#formTime").value = "09:00";
+      fillTimeSelect($("#formTimeSelect"), "09:00");
+      $("#formSubmit").textContent = "Save";
+    }
+
+    function showAddForm() {
+      lastDrawerKey = "all-reminders";
+      lastDrawerItemId = null;
+      resetItemForm();
+      $("#drawerTitle").textContent = "Add Item";
+      $("#drawerSubtitle").textContent = "Create one task, reminder, payment, birthday, or follow up.";
+      $("#drawerBody").innerHTML = `
+        <div class="detail-card">
+          <header>
+            <h4>Single entry point</h4>
+            <span class="chip green">New</span>
+          </header>
+          <p>Select the type, date, priority, and repeat rule. Payments can be monthly, birthdays can be yearly, and follow ups appear in the dashboard by date.</p>
+        </div>
+      `;
+      $("#formSubmit").textContent = "Create Item";
+      $("#itemForm").classList.remove("hidden");
+      $("#drawer").classList.add("open");
+      $("#drawer").setAttribute("aria-hidden", "false");
+      $("#drawerBackdrop").classList.add("open");
+    }
+
+    function showEditForm(itemId) {
+      const item = items.find(entry => entry.id === Number(itemId));
+      if (!item) return;
+      $("#formId").value = item.id;
+      $("#formType").value = item.type;
+      $("#formDate").value = item.date;
+      $("#formTitle").value = item.title;
+      $("#formPriority").value = item.priority || "medium";
+      $("#formRepeat").value = item.repeat || "none";
+      $("#formTime").value = item.time || "09:00";
+      fillTimeSelect($("#formTimeSelect"), item.time || "09:00");
+      $("#formDuration").value = String(item.duration || 60);
+      $("#formPhone").value = item.phone || phoneFor(item);
+      $("#formPlace").value = item.place || "";
+      $("#formMeetingLink").value = item.meetingLink || "";
+      $("#formGoogleMeet").value = item.googleMeet || "";
+      $("#formLocationLink").value = item.locationLink || "";
+      $("#formNotes").value = item.notes || "";
+      $("#formSubmit").textContent = "Save Changes";
+      $("#drawerTitle").textContent = "Edit Item";
+      $("#drawerSubtitle").textContent = `${item.type} · ${formatDate(item.date)} · ${formatTime(item.time)} · ${dueText(item)}`;
+      $("#drawerBody").innerHTML = `
+        <div class="detail-card">
+          <header>
+            <h4>${item.title}</h4>
+            <span class="chip ${item.priority === "high" ? "red" : item.priority === "medium" ? "amber" : "green"}">${item.priority}</span>
+          </header>
+          <p>${item.notes || "No notes added yet."}</p>
+          ${itemActions(item)}
+        </div>
+      `;
+      $("#itemForm").classList.remove("hidden");
+      $("#drawer").classList.add("open");
+      $("#drawer").setAttribute("aria-hidden", "false");
+      $("#drawerBackdrop").classList.add("open");
+    }
+
+    function openDrawer(key, itemId) {
+      hideItemForm();
+      lastDrawerKey = key || "all-reminders";
+      lastDrawerItemId = itemId || null;
+      let selected;
+      let title;
+      let subtitle;
+      if (itemId) {
+        selected = items.filter(item => String(item.id) === String(itemId));
+        title = selected[0]?.title || "Details";
+        subtitle = selected[0] ? `${selected[0].type} · ${formatDate(selected[0].date)} · ${formatTime(selected[0].time)} · ${dueText(selected[0])}` : "";
+      } else {
+        [title, subtitle] = titleForGroup(key);
+        selected = key === "notifications"
+          ? visibleItems().filter(item => item.status !== "done" && daysFromToday(item.date) <= 7)
+          : groups()[key] || visibleItems();
+      }
+      $("#drawerTitle").textContent = title;
+      $("#drawerSubtitle").textContent = subtitle;
+      $("#drawerBody").innerHTML = selected.length ? selected.map(item => `
+        <article class="detail-card">
+          <header>
+            <h4>${item.title}</h4>
+            <span class="chip ${item.priority === "high" ? "red" : item.priority === "medium" ? "amber" : "green"}">${item.priority}</span>
+          </header>
+          <div class="row-meta">${item.type.toUpperCase()} · ${formatDate(item.date)} · ${formatTime(item.time)} · ${dueText(item)} · ${item.owner || "Self"}</div>
+          <p>${item.notes || "No notes added yet."}</p>
+          ${itemActions(item)}
+          <div class="chips">
+            ${item.amount ? `<span class="chip amber">${item.amount}</span>` : ""}
+            ${item.duration ? `<span class="chip">${item.duration} min</span>` : ""}
+            ${item.repeat && item.repeat !== "none" ? `<span class="chip violet">Repeats ${item.repeat}</span>` : ""}
+            <span class="chip ${item.status === "done" ? "green" : "red"}">${item.status}</span>
+            <button class="edit-button" data-edit="${item.id}">Edit</button>
+          </div>
+        </article>
+      `).join("") : '<div class="empty">No matching items found.</div>';
+      $("#drawer").classList.add("open");
+      $("#drawer").setAttribute("aria-hidden", "false");
+      $("#drawerBackdrop").classList.add("open");
+    }
+
+    function closeDrawer() {
+      $("#drawer").classList.remove("open");
+      $("#drawer").setAttribute("aria-hidden", "true");
+      $("#drawerBackdrop").classList.remove("open");
+      hideItemForm();
+    }
+
+    async function addItem(data) {
+  const newItem = {
+    id: String(Date.now()),
+    owner: "Self",
+    time: data.time || "09:00",
+    status: "open",
+    progress: data.type === "payment" ? 10 : 25,
+    ...data
+  };
+
+  items.unshift(newItem);
+  saveItems();
+  render();
+
+  await saveToSheet("add", newItem);
+}
+
+    async function updateItem(itemId, data) {
+  const index = items.findIndex(item => String(item.id) === String(itemId));
+  if (index === -1) return;
+
+  const updatedItem = {
+    ...items[index],
+    ...data,
+    id: String(itemId)
+  };
+
+  items[index] = updatedItem;
+  saveItems();
+  render();
+
+  await saveToSheet("update", updatedItem);
+}
+
+    function formatFullDate(value) {
+      return parseDate(value).toLocaleDateString("en-IN", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+    }
+
+    function timeToHour(value) {
+      return Number((value || "09:00").split(":")[0]);
+    }
+
+    function itemsForDate(value) {
+      return visibleItems()
+        .filter(item => item.date === value)
+        .sort((a, b) => (a.time || "09:00").localeCompare(b.time || "09:00"));
+    }
+
+    function openDayPlanner(dateValue) {
+      const dayItems = itemsForDate(dateValue);
+      $("#plannerDate").value = dateValue;
+      $("#plannerTitle").textContent = formatFullDate(dateValue);
+      $("#plannerSubtitle").textContent = `${dayItems.length} scheduled item${dayItems.length === 1 ? "" : "s"} for this day`;
+      $("#plannerTime").value = "09:00";
+      fillTimeSelect($("#plannerTimeSelect"), "09:00");
+      $("#plannerDuration").value = "60";
+      $("#plannerType").value = "meeting";
+      $("#plannerPriority").value = "medium";
+      $("#plannerItemTitle").value = "";
+      $("#plannerPhone").value = "";
+      $("#plannerPlace").value = "";
+      $("#plannerMeetingLink").value = "";
+      $("#plannerGoogleMeet").value = "";
+      $("#plannerLocationLink").value = "";
+      $("#plannerNotes").value = "";
+      renderDayPlanner(dateValue);
+      $("#plannerModal").classList.add("open");
+      $("#plannerModal").setAttribute("aria-hidden", "false");
+      $("#drawerBackdrop").classList.add("open");
+    }
+
+    function closeDayPlanner() {
+      $("#plannerModal").classList.remove("open");
+      $("#plannerModal").setAttribute("aria-hidden", "true");
+      if (!$("#drawer").classList.contains("open")) {
+        $("#drawerBackdrop").classList.remove("open");
+      }
+    }
+
+    function renderDayPlanner(dateValue) {
+      const dayItems = itemsForDate(dateValue);
+      const hours = Array.from({ length: 24 }, (_, index) => index);
+      $("#daySchedule").innerHTML = hours.map(hour => {
+        const hourItems = dayItems.filter(item => timeToHour(item.time) === hour);
+        const label = new Date(2026, 4, 30, hour).toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" });
+        return `
+          <div class="hour-row">
+            <div class="hour-label">${label}</div>
+            <div class="hour-content">
+              ${hourItems.map(item => `
+                <button class="calendar-event" data-detail="${item.id}">
+                  <strong>${item.title}</strong>
+                  <span class="row-meta">${formatTime(item.time)} · ${item.duration || 60} min · ${item.type}</span>
+                  ${phoneFor(item) ? `<span class="row-meta">Phone: ${phoneFor(item)}</span>` : ""}
+                  ${item.place ? `<span class="row-meta">Place: ${item.place}</span>` : ""}
+                  ${item.meetingLink ? `<span class="row-meta">Meeting link added</span>` : ""}
+                  ${item.googleMeet ? `<span class="row-meta">Google Meet added</span>` : ""}
+                  ${item.locationLink ? `<span class="row-meta">Location link added</span>` : ""}
+                  ${item.notes ? `<span class="row-meta">Notes: ${item.notes}</span>` : ""}
+                </button>
+              `).join("")}
+            </div>
+          </div>
+        `;
+      }).join("");
+      $("#dayTaskList").innerHTML = dayItems.length ? dayItems.map(item => `
+        <article class="mini-item">
+          <span class="chip ${item.priority === "high" ? "red" : item.priority === "medium" ? "amber" : "green"}">${item.type}</span>
+          <button style="background:transparent;text-align:left;padding:0" data-detail="${item.id}"><strong>${item.title}</strong></button>
+          <small>${formatTime(item.time)}</small>
+          ${itemDetailLines(item)}
+          <div style="grid-column:1 / -1">${itemActions(item)}</div>
+        </article>
+      `).join("") : '<div class="empty" style="padding:16px">No tasks or meetings yet. Add one above.</div>';
+    }
+
+    function scrollToCalendar() {
+      closeDrawer();
+      closeDayPlanner();
+      $("#calendarPanel").scrollIntoView({ block: "center" });
+      $$(".nav-button").forEach(btn => btn.classList.toggle("active", btn.dataset.section === "calendar"));
+    }
+
+    function render() {
+      setCounts();
+      renderImportant();
+      renderReminders();
+      renderPeople();
+      renderCalendar();
+      renderActivity();
+    }
+
+    document.addEventListener("click", (event) => {
+      const open = event.target.closest("[data-open]");
+      if (open) openDrawer(open.dataset.open);
+
+      const detail = event.target.closest("[data-detail]");
+      if (detail) openDrawer("item", detail.dataset.detail);
+
+      const edit = event.target.closest("[data-edit]");
+      if (edit) showEditForm(edit.dataset.edit);
+
+      const section = event.target.closest("[data-section]");
+      if (section && section.dataset.section === "calendar") scrollToCalendar();
+
+      const dateButton = event.target.closest("[data-date]");
+      if (dateButton) openDayPlanner(dateButton.dataset.date);
+
+      const toggle = event.target.closest("[data-toggle]");
+      if (toggle) {
+        const item = items.find(entry => String(entry.id) === String(toggle.dataset.toggle));
+        if (item) item.status = item.status === "done" ? "open" : "done";
+        saveItems();
+        render();
+      }
+
+      const tab = event.target.closest("[data-reminder-tab]");
+      if (tab) {
+        activeReminderTab = tab.dataset.reminderTab;
+        $$("[data-reminder-tab]").forEach(btn => btn.classList.toggle("active", btn === tab));
+        renderReminders();
+      }
+
+      const segment = event.target.closest("[data-range]");
+      if (segment) {
+        activeRange = Number(segment.dataset.range);
+        $$("[data-range]").forEach(btn => btn.classList.toggle("active", btn === segment));
+        renderCalendar();
+        $("#calendarPanel").scrollIntoView({ block: "center" });
+      }
+    });
+
+    syncTimeControls("#formTime", "#formTimeSelect");
+    syncTimeControls("#plannerTime", "#plannerTimeSelect");
+
+    $("#itemForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const data = {
+        type: $("#formType").value,
+        title: $("#formTitle").value.trim(),
+        date: $("#formDate").value,
+        time: $("#formTime").value,
+        duration: Number($("#formDuration").value),
+        priority: $("#formPriority").value,
+        repeat: $("#formRepeat").value,
+        phone: $("#formPhone").value.trim(),
+        place: $("#formPlace").value.trim(),
+        meetingLink: $("#formMeetingLink").value.trim(),
+        googleMeet: $("#formGoogleMeet").value.trim(),
+        locationLink: $("#formLocationLink").value.trim(),
+        notes: $("#formNotes").value.trim()
+      };
+      if ($("#formId").value) {
+        const editedId = $("#formId").value;
+        updateItem(editedId, data);
+        openDrawer("item", editedId);
+      } else {
+        addItem(data);
+        openDrawer("all-reminders");
+      }
+      resetItemForm();
+    });
+
+    $("#plannerForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const date = $("#plannerDate").value;
+      addItem({
+        type: $("#plannerType").value,
+        title: $("#plannerItemTitle").value.trim(),
+        date,
+        time: $("#plannerTime").value,
+        duration: Number($("#plannerDuration").value),
+        priority: $("#plannerPriority").value,
+        repeat: "none",
+        phone: $("#plannerPhone").value.trim(),
+        place: $("#plannerPlace").value.trim(),
+        meetingLink: $("#plannerMeetingLink").value.trim(),
+        googleMeet: $("#plannerGoogleMeet").value.trim(),
+        locationLink: $("#plannerLocationLink").value.trim(),
+        notes: $("#plannerNotes").value.trim()
+      });
+      openDayPlanner(date);
+    });
+
+    $("#searchInput").addEventListener("input", render);
+    $("#notifyButton").addEventListener("click", () => openDrawer("notifications"));
+    $("#addButton").addEventListener("click", showAddForm);
+    $("#cancelForm").addEventListener("click", () => {
+      hideItemForm();
+      openDrawer(lastDrawerKey, lastDrawerItemId);
+    });
+    $("#closeDrawer").addEventListener("click", closeDrawer);
+    $("#closePlanner").addEventListener("click", closeDayPlanner);
+    $("#drawerBackdrop").addEventListener("click", () => {
+      closeDrawer();
+      closeDayPlanner();
+    });
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") {
+        closeDrawer();
+        closeDayPlanner();
+      }
+    });
+
+    render();
+    syncFromSheet();
+  </script>
+</body>
+</html>
