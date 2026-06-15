@@ -1123,7 +1123,7 @@
           <svg viewBox="0 0 24 24"><path d="M4 4h7v7H4z"></path><path d="M13 4h7v5h-7z"></path><path d="M13 11h7v9h-7z"></path><path d="M4 13h7v7H4z"></path></svg>
         </div>
         <div>
-          <h1>LifePMS</h1>
+          <h1>VHP-PMS</h1>
           <p>Personal Suite</p>
         </div>
       </div>
@@ -1146,7 +1146,7 @@
       </nav>
 
       <div class="profile">
-        <div class="avatar">ANC</div>
+        <div class="avatar">HP</div>
         <div>
           <strong>Atchimi Naidu Chappa</strong>
           <span>Founder & Managing Director</span>
@@ -1254,9 +1254,18 @@
           </section>
 
           <section class="panel">
-            <div class="panel-header">
-              <div class="panel-title"><svg class="green" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> Family & Contacts</div>
-              <button class="link-button" data-open="birthdays">All -></button>
+          <div class="panel-header">
+          <div class="panel-title">
+          <svg class="green" viewBox="0 0 24 24">
+          <path d="M3 12h18"></path>
+          <path d="M12 3v18"></path>
+          </svg>
+          History
+          </div>
+
+          <button class="link-button" data-open="history">
+          All ->
+          </button>
             </div>
             <div class="people-list" id="peopleList"></div>
           </section>
@@ -1448,23 +1457,12 @@
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbxRrj1FBiO69Ol4xNA6LfAaz1cuW6wBmP_QnpMJW7KZx9uWMA_wUdgP3_yzkF0JkoHjGQ/exec";
 
+    const seedItems = [];
+
      const today = new Date();
      const storageKey = "lifePmsItems.v1";
      let apiOnline = false;
 
-    const seedItems = [
-      { id: 1, type: "follow", title: "Call bank manager about home loan top-up", owner: "Self", date: "2026-05-30", time: "09:00", priority: "high", status: "open", notes: "Ask for rate revision, foreclosure charges, and documents required.", progress: 72 },
-      { id: 2, type: "task", title: "Submit insurance renewal documents", owner: "Self", date: "2026-05-31", time: "11:30", priority: "high", status: "open", notes: "Health insurance renewal. Check nominee and address details before submission.", progress: 38 },
-      { id: 3, type: "follow", title: "Follow up with tenant on rent agreement", owner: "Ravi", date: "2026-06-02", time: "14:00", priority: "medium", status: "open", notes: "Send stamped copy and ask for signature confirmation.", progress: 55 },
-      { id: 4, type: "payment", title: "Home Loan EMI", owner: "Bank", date: "2026-06-05", time: "10:00", amount: "Rs 42,500", priority: "high", status: "open", repeat: "monthly", notes: "Auto debit. Keep balance ready two days before due date.", progress: 20 },
-      { id: 5, type: "payment", title: "Car Insurance Premium", owner: "Insurer", date: "2026-06-10", time: "16:00", amount: "Rs 18,900", priority: "medium", status: "open", repeat: "yearly", notes: "Compare renewal quote before payment.", progress: 88 },
-      { id: 6, type: "birthday", title: "Ananya birthday", owner: "Family", date: "2026-06-12", time: "08:00", duration: 30, priority: "medium", status: "open", repeat: "yearly", notes: "Order cake and call in the morning." },
-      { id: 7, type: "follow", title: "Gradual follow up: property tax receipt", owner: "Corporation office", date: "2026-06-07", time: "12:00", priority: "low", status: "open", notes: "First check portal, then call helpline if receipt is not generated.", progress: 60 },
-      { id: 8, type: "payment", title: "SIP monthly investment", owner: "Mutual fund", date: "2026-06-15", time: "09:00", amount: "Rs 25,000", priority: "medium", status: "open", repeat: "monthly", notes: "Review allocation after payment.", progress: 45 },
-      { id: 9, type: "task", title: "Collect school fee receipt", owner: "School", date: "2026-06-20", time: "15:30", priority: "low", status: "open", notes: "Download receipt from parent portal.", progress: 25 },
-      { id: 10, type: "follow", title: "Second follow up: Aadhaar address update", owner: "Self", date: "2026-06-01", time: "10:30", priority: "high", status: "done", notes: "Completed after document upload." },
-      { id: 11, type: "meeting", title: "Weekly planning meeting", owner: "Self", date: "2026-05-30", time: "17:30", duration: 60, priority: "medium", status: "open", repeat: "weekly", phone: "9860394160", place: "Office conference room", meetingLink: "https://meet.google.com/new", googleMeet: "https://meet.google.com/new", locationLink: "https://maps.google.com", notes: "Review dues, meetings, and follow ups for next week." }
-    ];
 
     let items = loadItems();
     let activeReminderTab = "today";
@@ -1474,6 +1472,8 @@
 
     const $ = (selector, root = document) => root.querySelector(selector);
     const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+
+
 
     function loadItems() {
   try {
@@ -1488,8 +1488,15 @@ function saveItems() {
 }
 
 function normalizeSheetItem(item) {
+
+  const cleanDate =
+    item.date
+      ? String(item.date).split("T")[0]
+      : "";
+
   return {
     ...item,
+    date: cleanDate,
     id: item.id || String(Date.now()),
     duration: item.duration ? Number(item.duration) : 60,
     status: item.status || "open",
@@ -1505,10 +1512,13 @@ async function syncFromSheet() {
     const sheetItems = Array.isArray(data) ? data : data.items || data.data || [];
 
     if (sheetItems.length) {
-      items = sheetItems.map(normalizeSheetItem);
-      saveItems();
-      render();
-    }
+
+   console.log("SHEET DATA", sheetItems);
+
+   items = sheetItems.map(normalizeSheetItem);
+   saveItems();
+   render();
+}
 
     apiOnline = true;
   } catch (error) {
@@ -1532,8 +1542,14 @@ async function saveToSheet(action, item) {
 }
 
     function parseDate(value) {
-      return new Date(value + "T00:00:00");
-    }
+
+  if (!value) return new Date();
+
+  const clean =
+    String(value).split("T")[0];
+
+  return new Date(clean + "T00:00:00");
+}
 
     function daysFromToday(value) {
       const diff = parseDate(value) - new Date(today.toDateString());
@@ -1651,6 +1667,7 @@ async function saveToSheet(action, item) {
         payments: source.filter(item => item.status !== "done" && item.type === "payment" && daysFromToday(item.date) <= 30),
         meetings: source.filter(item => item.status !== "done" && item.type === "meeting"),
         birthdays: source.filter(item => item.status !== "done" && item.type === "birthday"),
+        history: source.filter(item => item.status === "done"),
         "all-reminders": source
       };
     }
@@ -1735,17 +1752,50 @@ async function saveToSheet(action, item) {
     }
 
     function renderPeople() {
-      const contacts = [
-        { initials: "S", name: "Staff", role: "Staff", pending: 2, color: "var(--green)" },
-      ];
-      $("#peopleList").innerHTML = contacts.map(person => `
-        <button class="person-row" data-open="birthdays">
-          <span class="avatar" style="background:${person.color}">${person.initials}</span>
-          <span><span class="row-title">${person.name}</span><span class="row-meta">${person.role}</span></span>
-          <strong class="blue">${person.pending}</strong>
-        </button>
-      `).join("");
-    }
+
+  const completed =
+    items.filter(item => item.status === "done");
+
+  if (!completed.length) {
+
+    $("#peopleList").innerHTML = `
+      <div style="
+        padding:20px;
+        text-align:center;
+        color:var(--muted);
+      ">
+        No completed tasks yet
+      </div>
+    `;
+
+    return;
+  }
+
+  $("#peopleList").innerHTML =
+    completed.map(item => `
+      <button class="person-row"
+              onclick="openDrawer('history','${item.id}')">
+
+        <span class="avatar"
+              style="background:var(--green)">
+          ✓
+        </span>
+
+        <span>
+          <span class="row-title"
+                style="text-decoration:line-through;">
+            ${item.title}
+          </span>
+
+          <span class="row-meta">
+            ${item.type}
+          </span>
+        </span>
+
+      </button>
+    `).join("");
+
+}
 
     function renderCalendar() {
       const grid = $("#calendarGrid");
@@ -1789,20 +1839,52 @@ async function saveToSheet(action, item) {
     }
 
     function renderActivity() {
-      const activity = [
-        { color: "var(--blue)", text: "Important follow up added for bank manager", time: "Today" },
-        { color: "var(--green)", text: "Aadhaar address follow up marked complete", time: "Yesterday" },
-        { color: "var(--red)", text: "Insurance renewal moved to high priority", time: "2 days ago" },
-        { color: "var(--violet)", text: "Birthday reminder created for Ananya", time: "3 days ago" },
-        { color: "var(--amber)", text: "EMI reminder set for Home Loan", time: "This week" }
-      ];
-      $("#activityList").innerHTML = activity.map(item => `
-        <div class="activity-row">
-          <span class="activity-dot" style="background:${item.color}"></span>
-          <span><span class="row-title">${item.text}</span><span class="row-meta">${item.time}</span></span>
-        </div>
-      `).join("");
-    }
+
+  const recent =
+    [...items]
+      .sort((a,b) =>
+        new Date(b.updatedAt || b.createdAt || 0) -
+        new Date(a.updatedAt || a.createdAt || 0)
+      )
+      .slice(0,5);
+
+  $("#activityList").innerHTML =
+    recent.map(item => `
+
+      <div class="activity-row">
+
+        <span class="activity-dot"
+              style="background:
+              ${item.status === "done"
+                  ? "var(--green)"
+                  : "var(--blue)"}">
+        </span>
+
+        <span>
+
+          <span class="row-title">
+
+            ${item.status === "done"
+              ? item.title + " completed"
+              : item.title + " updated"}
+
+          </span>
+
+          <span class="row-meta">
+
+            ${item.updatedAt
+              ? "Recently"
+              : "Created"}
+
+          </span>
+
+        </span>
+
+      </div>
+
+    `).join("");
+
+}
 
     function titleForGroup(key) {
       return {
@@ -1923,7 +2005,25 @@ async function saveToSheet(action, item) {
             ${item.duration ? `<span class="chip">${item.duration} min</span>` : ""}
             ${item.repeat && item.repeat !== "none" ? `<span class="chip violet">Repeats ${item.repeat}</span>` : ""}
             <span class="chip ${item.status === "done" ? "green" : "red"}">${item.status}</span>
-            <button class="edit-button" data-edit="${item.id}">Edit</button>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+
+            <button class="edit-button" data-edit="${item.id}">
+            Edit
+            </button>
+
+           <button class="edit-button"
+            style="background:#16a34a;border-color:#16a34a;color:white;"
+            onclick="markCompleted('${item.id}')">
+           Complete
+           </button>
+
+           <button class="edit-button"
+           style="background:#dc2626;border-color:#dc2626;color:white;"
+            onclick="deleteItem('${item.id}')">
+            Delete
+            </button>
+
+</div>
           </div>
         </article>
       `).join("") : '<div class="empty">No matching items found.</div>';
@@ -2182,7 +2282,51 @@ async function saveToSheet(action, item) {
         closeDayPlanner();
       }
     });
+function markCompleted(id) {
 
+  if (!confirm("Mark this task as completed?")) return;
+
+  const item = items.find(
+    x => String(x.id) === String(id)
+  );
+
+  if(item){
+
+    item.status = "done";
+
+    saveItems();
+
+    if(typeof saveToSheet === "function"){
+      saveToSheet("update", item);
+    }
+
+    render();
+
+    openDrawer(lastDrawerKey);
+  }
+}
+
+function deleteItem(id) {
+
+  if (!confirm("Delete this item permanently?")) return;
+
+  items = items.filter(
+    x => String(x.id) !== String(id)
+  );
+
+  saveItems();
+
+  if(typeof saveToSheet === "function"){
+    saveToSheet("delete", {id});
+  }
+
+  render();
+
+  closeDrawer();
+}
+
+render();
+syncFromSheet();
     render();
     syncFromSheet();
   </script>
