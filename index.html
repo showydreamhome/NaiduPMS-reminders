@@ -1736,10 +1736,7 @@ async function saveToSheet(action, item) {
 
     function renderPeople() {
       const contacts = [
-        { initials: "AM", name: "Amma", role: "Family", pending: 2, color: "var(--green)" },
-        { initials: "RA", name: "Ravi Kumar", role: "Insurance agent", pending: 1, color: "var(--violet)" },
-        { initials: "BK", name: "Bank Manager", role: "Loan contact", pending: 3, color: "var(--amber)" },
-        { initials: "AN", name: "Ananya", role: "Birthday on Jun 12", pending: 1, color: "var(--red)" }
+        { initials: "S", name: "Staff", role: "Staff", pending: 2, color: "var(--green)" },
       ];
       $("#peopleList").innerHTML = contacts.map(person => `
         <button class="person-row" data-open="birthdays">
